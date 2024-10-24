@@ -13,8 +13,15 @@ const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 // Middleware
+
+const corsOptions = {
+  origin: 'https://3wtechnology.netlify.app', // Allow only this origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify the allowed HTTP methods
+  credentials: true // Allow credentials (if needed)
+};
+
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
