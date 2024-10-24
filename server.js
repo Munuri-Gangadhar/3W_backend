@@ -5,12 +5,28 @@ const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const { protectAdmin } = require('./middleware/authMiddleware');
 const path = require('path');
+const cors=require('cors');
 
-dotenv.config({ path: './config/config.env' });
+require('dotenv').config();
+
 const app = express();
 app.use(express.json());
+app.use(cors({
+     origin:'http://localhost:3000',
+     methods:['GET','POST','DELETE','PUT'],
+     credentials:true,
 
-// mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+}))
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('Successfully connected to MongoDB!');
+  })
+  .catch((error) => {
+    console.error('Error connecting to MongoDB:', error.message);
+  });
+
+// console.log(process.env.MONGO_URI)
 
 app.use('/api/users', userRoutes);
 app.use('/api/admin', protectAdmin, adminRoutes);

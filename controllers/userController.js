@@ -26,6 +26,7 @@ const upload = multer({
 });
 
 const handleSubmission = upload.array('images', 5);
+
 const saveSubmission = async (req, res) => {
   try {
     const { name, socialHandle } = req.body;
@@ -33,9 +34,11 @@ const saveSubmission = async (req, res) => {
     const user = new User({ name, socialHandle, images });
     await user.save();
     res.status(201).json({ message: 'Submission successful', user });
-  } catch {
+  } catch (error) {
+    console.error('Error saving submission:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 module.exports = { handleSubmission, saveSubmission };
