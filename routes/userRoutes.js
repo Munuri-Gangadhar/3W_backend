@@ -1,8 +1,18 @@
 const express = require('express');
-const { handleSubmission, saveSubmission } = require('../controllers/userController');
-
+const multer = require('multer');
+const { createUser } = require('../controllers/userController');
 const router = express.Router();
 
-router.post('/submit', handleSubmission, saveSubmission);
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ storage });
+router.post('/upload', upload.array('images', 10), createUser);
 
 module.exports = router;
