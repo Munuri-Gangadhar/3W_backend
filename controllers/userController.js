@@ -1,44 +1,30 @@
-const multer = require('multer');
-const path = require('path');
-const User = require('../models/userModel');
+const User=require('../models/User');
 
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, 'uploads/images');
-  },
-  filename(req, file, cb) {
-    cb(null, `${Date.now()}${path.extname(file.originalname)}`);
-  }
-});
+const createUser=async(req,res)=>{
+   try{
+    const {name,socialMediaHandle}=req.body;
+    const imagePaths=req.files.map(file=>`/uploads/${file.filename}`);
 
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const fileTypes = /jpeg|jpg|png/;
-    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = fileTypes.test(file.mimetype);
-    if (extname && mimetype) {
-      return cb(null, true);
-    } else {
-      cb('Images only!');
-    }
-  }
-});
-
-const handleSubmission = upload.array('images', 5);
-
-const saveSubmission = async (req, res) => {
-  try {
-    const { name, socialHandle } = req.body;
-    const images = req.files.map(file => `/uploads/images/${file.filename}`);
-    const user = new User({ name, socialHandle, images });
+    const user=new User({
+      name,
+      socialMediaHandle,
+      imagePaths
+    });
     await user.save();
-    res.status(201).json({ message: 'Submission successful', user });
-  } catch (error) {
-    console.error('Error saving submission:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+    res.status(201).json({message:'User submitted successfully',user});
+   }catch(err){
+    res.status(400).json({message:err.message});
+   }
+}
 
+const getUsers=async(req,res)=>{
+    try{
+      const users=await User.find();
+      res.status(200).json(users);
 
-module.exports = { handleSubmission, saveSubmission };
+    }catch(err){
+      res.status(400).json({message:err.message})
+    }
+}
+
+module.exports={createUser,getUsers}
